@@ -1,0 +1,4 @@
+# ignore file and folders
+node_modules
+# ignore specific extention file
+# *.txt for example

@@ -1,5 +1,5 @@
 const { connectionDB } = require("../config/db");
-const {Driver} = require("../models/driverModels");
+const { Driver } = require("../models/driverModels");
 connectionDB();
 
 const validateDriverDataRequiredField = (driverData) => {
@@ -26,17 +26,50 @@ const saveDriver = async (driverData) => {
             throw new Error("duplicate drive found")
         }
         await new Driver(driverData).save()
-        return {message:"created"}
+        return { message: "created" }
 
     }
     catch (error) {
         if (error.message == "duplicate drive found") throw new Error("duplicate Driver")
         else {
-            console.log(error)
-            return {message:"Internal server Error"}
+            return { message: "Internal server Error" }
         }
     }
 }
+const getAllDrivers = async () => {
+    try {
+        return await Driver.find({})
+    }
+    catch (error) {
+        throw new Error("Error fetching data");
+    }
+}
 
-module.exports = { saveDriver }
+const updateDriverData = async (driverId, driverUpdateData) => {
+    validateDriverDataRequiredField(driverUpdateData)
+    try {
+        const driver = await Driver.updateOne({ _id: driverId }, { $set: driverUpdateData });
+        if (!driver.matchedCount) {
+            throw new Error("Driver not found");
+        }
+        console.log(driver.matchedCount)
+        return driver;
+    }
+    catch (error) { 
+        if(error.message == 'Driver not found')
+            throw new Error('Driver not found')
+        else{
+            throw new Error("Error updating data");
+        }
+     }
+}
+const deleteDriverById = async (driverId) =>{
+    try{    
+        return await Driver.deleteOne({ _id: driverId })  
+     }
+    catch(error){ throw new Error("Error deleting data") }
+
+}
+
+module.exports = { saveDriver, getAllDrivers, updateDriverData,deleteDriverById }
 
